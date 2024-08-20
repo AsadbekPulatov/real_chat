@@ -9,6 +9,10 @@ class ChatMessage extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'is_read' => 0
+    ];
+
     protected $fillable = [
         'receiver_id',
         'sender_id',

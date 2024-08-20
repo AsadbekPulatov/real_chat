@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/chat/{friend}', [ChatController::class, 'chat'])->name('chat');
     Route::get('/messages/{friend}', [ChatController::class, 'messages']);
     Route::post('/messages/{friend}', [ChatController::class, 'message_save']);
+    Route::post('/messages/{messageId}/mark-as-read', [ChatController::class, 'markAsRead']);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

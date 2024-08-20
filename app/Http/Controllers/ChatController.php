@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\MessageRead;
+use App\Events\MessageSent;
 use App\Models\ChatMessage;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,6 +17,9 @@ class ChatController extends Controller
 
     public function messages(User $friend)
     {
+        ChatMessage::where('sender_id', $friend->id)->where('receiver_id', auth()->id())->update([
+            'is_read' => 1
+        ]);
         return ChatMessage::query()
             ->where(function ($query) use ($friend) {
                 $query->where('sender_id', auth()->id())->where('receiver_id', $friend->id);
@@ -33,6 +38,25 @@ class ChatController extends Controller
             'text' => request()->input('message')
         ]);
 
+        $message = ChatMessage::with(['sender', 'receiver'])->where('id', $message->id)->first();
+        broadcast(new MessageSent($message));
+
         return $message;
+    }
+
+    public function markAsRead(Request $request, $messageId)
+    {
+        $message = ChatMessage::find($messageId);
+        if ($message && $message->receiver_id === auth()->id()) {
+            $message->is_read = true;
+            $message->save();
+
+            // Broadcast the update to other users
+            broadcast(new MessageRead($message))->toOthers();
+
+            return response()->json(['status' => 'success', 'message' => 'Message marked as read']);
+        }
+
+        return response()->json(['status' => 'error', 'message' => 'Message not found or unauthorized'], 404);
     }
 }

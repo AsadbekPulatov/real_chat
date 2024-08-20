@@ -10,8 +10,8 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="row">
-{{--                        <chat-component></chat-component>--}}
-                        <x-chat-component :chat_id="$friend->id"/>
+                        <chat-component :friend="{{ $friend }}" :current-user="{{ auth()->user() }}" />
+                        {{--                        <x-chat-component :friend="$friend"/>--}}
 {{--                        {{ $friend->name }}--}}
                     </div>
                 </div>
