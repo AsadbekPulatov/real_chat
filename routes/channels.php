@@ -16,3 +16,11 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('chat.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+
+Broadcast::channel('online-users', function ($user) {
+    return $user;
+});
+
+Broadcast::channel('chat.{senderId}.{receiverId}', function ($user, $senderId, $receiverId) {
+    return $user->id === (int) $senderId || $user->id === (int) $receiverId;
+});

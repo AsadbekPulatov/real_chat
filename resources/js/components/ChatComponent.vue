@@ -67,7 +67,7 @@ const isFriendTyping = ref(false);
 const isFriendTypingTimer = ref(null);
 
 const markAsRead = (messageId) => {
-    axios.post(`/messages/${messageId}/mark-as-read`).then(response => {
+    axios.get(`/messages/${messageId}/mark-as-read`).then(response => {
         console.log('Message marked as read', response.data);
     });
 };
@@ -84,6 +84,7 @@ watch(
         messages.value.forEach(message => {
             if (message.sender_id !== props.currentUser.id && !message.is_read) {
                 markAsRead(message.id);
+                message.is_read = true;
             }
         });
     },
@@ -115,15 +116,17 @@ onMounted(() => {
         messages.value = response.data;
     });
 
+    Echo.join(`chat.${props.currentUser.id}.${props.friend.id}`)
+        .listen('MessageRead', (event) => {
+            let message = messages.value.find(m => m.id === event.message.id);
+            if (message) {
+                message.is_read = true;
+            }
+        });
+
     Echo.private(`chat.${props.currentUser.id}`)
         .listen("MessageSent", (response) => {
             messages.value.push(response.message);
-        })
-        .listen("MessageRead", (response) => {
-            const message = messages.value.find(m => m.id === response.message_id);
-            if (message) {
-                message.is_read = response.is_read;
-            }
         })
         .listenForWhisper("typing", (response) => {
             isFriendTyping.value = response.userID === props.friend.id;

@@ -44,19 +44,16 @@ class ChatController extends Controller
         return $message;
     }
 
-    public function markAsRead(Request $request, $messageId)
+    public function markAsRead($message)
     {
-        $message = ChatMessage::find($messageId);
-        if ($message && $message->receiver_id === auth()->id()) {
-            $message->is_read = true;
-            $message->save();
+        $message = ChatMessage::find($message);
+        $message->is_read = true;
+        $message->save();
 
-            // Broadcast the update to other users
-            broadcast(new MessageRead($message))->toOthers();
+        // Broadcast the update to other users
+        broadcast(new MessageRead($message, $message->sender_id, $message->receiver_id))->toOthers();
 
-            return response()->json(['status' => 'success', 'message' => 'Message marked as read']);
-        }
+        return response()->json(['status' => 'success', 'message' => 'Message marked as read']);
 
-        return response()->json(['status' => 'error', 'message' => 'Message not found or unauthorized'], 404);
     }
 }

@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
+use Illuminate\Auth\Events\Authenticated;
+use Illuminate\Auth\Events\Logout;
+use App\Listeners\UpdateUserOnlineStatus;
+use App\Listeners\UpdateUserOfflineStatus;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Event;
 
@@ -15,8 +19,11 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        Registered::class => [
-            SendEmailVerificationNotification::class,
+        Authenticated::class => [
+            UpdateUserOnlineStatus::class,
+        ],
+        Logout::class => [
+            UpdateUserOfflineStatus::class,
         ],
     ];
 
@@ -25,7 +32,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        parent::boot();
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Models\ChatMessage;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -10,23 +9,18 @@ use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
-class MessageRead implements ShouldBroadcast
+class UserOnlineStatusChanged implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
-    public $message;
-    public $senderId;
-    public $receiverId;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(ChatMessage $message, $senderId, $receiverId)
+    public function __construct(public $userId, public $isOnline)
     {
-        $this->message = $message;
-        $this->senderId = $senderId;
-        $this->receiverId = $receiverId;
+        //
     }
 
     /**
@@ -37,7 +31,15 @@ class MessageRead implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PresenceChannel('chat.' . $this->senderId . '.' . $this->receiverId)
+            new PresenceChannel('online-users')
+        ];
+    }
+
+    public function broadcastWith()
+    {
+        return [
+            'userId' => $this->userId,
+            'isOnline' => $this->isOnline,
         ];
     }
 }
