@@ -5,12 +5,10 @@
             <div class="card w-75 m-2"
                  style="box-shadow: 0px 0px 4px 4px #dbdcde; border-radius: 0px 25px 25px 50px; border: 2px solid darkblue"
                  v-for="message in messages"
-                 :class="message.sender_id !== currentUser.id ? 'float-start':'float-end'"
+                 :class="message.sender_id !== currentUser.id ? 'float-start friend-message':'float-end my-message'"
                  :key="message.id"
             >
-                <div class="p-3">
-                    <p style="color: darkblue;"><i class="bi bi-person-circle" style="font-size: 30px;"></i>
-                        {{ message.sender.name }}</p>
+                <div class="p-4">
                     <p style="color: black">{{ message.text }}
                         <span class="float-end">
                             <i class="bi bi-clock"></i> {{ new Date(message.created_at).toLocaleDateString('us') }}
@@ -44,6 +42,15 @@
         </form>
     </div>
 </template>
+
+<style scoped>
+.my-message{
+    background-color: #94f594;
+}
+.friend-message{
+    background-color: #f3f36d;
+}
+</style>
 
 <script setup>
 import axios from "axios";
@@ -120,6 +127,7 @@ onMounted(() => {
         .listen('MessageRead', (event) => {
             let message = messages.value.find(m => m.id === event.message.id);
             if (message) {
+                console.log(message, event)
                 message.is_read = true;
             }
         });
